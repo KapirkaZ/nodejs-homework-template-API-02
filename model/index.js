@@ -1,20 +1,31 @@
-// const fs = require('fs/promises')
-// const contacts = require('./contacts.json')
+const mongoose = require("mongoose");
 
-const listContacts = async () => {}
+require("dotenv").config();
 
-const getContactById = async (contactId) => {}
+const uriDb = process.env.DB_HOST;
 
-const removeContact = async (contactId) => {}
+const contactsSchema = require("./contacts");
+const usersSchema = require("./users");
 
-const addContact = async (body) => {}
+mongoose.connect(uriDb, {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+});
 
-const updateContact = async (contactId, body) => {}
+const db = mongoose.connection;
 
-module.exports = {
-  listContacts,
-  getContactById,
-  removeContact,
-  addContact,
-  updateContact,
-}
+db.on("error", function () {
+  console.error.bind(console, "connection error:");
+  process.exit(1);
+});
+
+db.once("open", function () {
+  console.log("Database connection successful");
+});
+
+const Dbcontacts = db.model("Contacts", contactsSchema, "contacts");
+const Dbusers = db.model("Users", usersSchema, "users");
+
+module.exports = { Dbcontacts, Dbusers };
